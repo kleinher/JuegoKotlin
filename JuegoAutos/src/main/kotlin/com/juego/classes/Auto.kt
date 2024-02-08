@@ -5,14 +5,13 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 
-class Auto(positionX: Int, positionY: Int) {
-    private val group = Group()
+abstract class Auto(positionX: Int, positionY: Int) {
+    val group = Group()
     private val rectangleDimension = 50.0
     private val innerRectangleDimension = 40.0
     private val offset = 5.0
-    private val carWidth = rectangleDimension*3
-    private val carHeight = rectangleDimension*4
-    private val speed = 50
+    val carWidth = rectangleDimension*3
+    val carHeight = rectangleDimension*4
     init {
         val inicio = Circle(0.0, 0.0, 10.0, Color.RED)
         val rects = rectangles(rectangleDimension)
@@ -45,28 +44,5 @@ class Auto(positionX: Int, positionY: Int) {
         Rectangle(-75.0, 50.0, dimensions, dimensions),  // Izquierda inferior
         Rectangle(25.0, 50.0, dimensions, dimensions)  // Derecha inferior
     )
-
-    fun moveLeft() {
-        if (group.layoutX - carWidth > carWidth/2) {
-            group.layoutX -= carWidth
-        }
-    }
-    fun moveRight(maxWidth: Double) {
-        if (group.layoutX + carWidth< maxWidth - carWidth/2) {
-            group.layoutX += carWidth
-        }
-    }
-    fun moveUp() {
-        if (group.layoutY - speed > carHeight/2) {
-            group.layoutY -= speed
-        }
-    }
-    fun moveDown(maxHeight: Double) {
-        if (group.layoutY + speed< maxHeight - carHeight/2) {
-            group.layoutY += speed
-        }
-    }
-    fun getCarNode(): Group {
-        return group
-    }
+    fun getCarNode(): Group = group
 }

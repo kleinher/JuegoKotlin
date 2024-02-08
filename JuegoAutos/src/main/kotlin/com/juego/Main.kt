@@ -1,6 +1,7 @@
 package com.juego
 
-import com.juego.classes.Auto
+import com.juego.classes.Enemy
+import com.juego.classes.Player
 import com.juego.classes.Wall
 import javafx.animation.AnimationTimer
 import javafx.animation.KeyFrame
@@ -16,25 +17,34 @@ import javafx.stage.Stage
 import javafx.util.Duration
 
 class Main : Application() {
-    val pane = Pane()
+    private val pane = Pane()
+
+
     val walls = ArrayList<Wall>()
+    val enemies = ArrayList<Enemy>()
     var gameSpeed = 1.0
+
     override fun start(primaryStage: Stage) {
-        val Player = Auto(275, 720-100)
+
+        val player = Player(275, 650)
+        val enemy = Enemy(275, 100)
+        enemies.add(enemy)
         createWall()
+        setTimeline()
 
         val marco = Rectangle(0.0, 0.0, sceneWidth, sceneHeight).apply {
             fill = null
             stroke = Color.BLACK
             strokeWidth = 2.0
         }
+
         val scene = Scene(pane, sceneWidth, sceneHeight)
         scene.setOnKeyPressed { event: KeyEvent ->
             when (event.code) {
-                KeyCode.A -> Player.moveLeft()
-                KeyCode.D -> Player.moveRight(sceneWidth)
-                KeyCode.W -> Player.moveUp()
-                KeyCode.S -> Player.moveDown(sceneHeight)
+                KeyCode.A -> player.moveLeft()
+                KeyCode.D -> player.moveRight(sceneWidth)
+                KeyCode.W -> player.moveUp()
+                KeyCode.S -> player.moveDown(sceneHeight)
                 KeyCode.X -> aumentaSpeed()
                 else -> {}
             }
@@ -52,19 +62,40 @@ class Main : Application() {
                     walls.forEach {
                         it.update();
                     }
+                    val iterator = enemies.iterator()
+                    while (iterator.hasNext()) {
+                        val enemy = iterator.next()
+                        enemy.update()
+                        if (enemy.outOfBounds()) {
+                            pane.children.remove(enemy.getCarNode())
+                            iterator.remove() // Remueve el enemigo usando el iterador
+                        }
+                    }
                     lastUpdate = now
                 }
             }
         }.start()
 
-
-
-        pane.children.add(Player.getCarNode())
+        pane.children.add(player.getCarNode())
+        pane.children.add(enemy.getCarNode())
         pane.children.add(marco)
         primaryStage.scene = scene
         primaryStage.title = "Dibujo de un Auto"
         primaryStage.show()
         pane.requestFocus()
+    }
+    private fun setTimeline() {
+        val timeline = Timeline(
+            KeyFrame(Duration.seconds(3.0), {createEnemy()})
+        )
+        timeline.cycleCount = Timeline.INDEFINITE
+        timeline.play()
+    }
+    val posicionesPosibles = listOf(125, 275, 425)
+    private fun createEnemy(){
+        val enemy = Enemy(posicionesPosibles.random(), -100)
+        enemies.add(enemy)
+        pane.children.add(enemy.getCarNode())
     }
     private fun createWall() {
         for(i in 0..8){
@@ -80,7 +111,6 @@ class Main : Application() {
     }
     private fun aumentaSpeed(){
         gameSpeed += 4.0
-
     }
 
     companion object {
