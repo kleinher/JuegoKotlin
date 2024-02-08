@@ -20,7 +20,7 @@ class Main : Application() {
     val walls = ArrayList<Wall>()
 
     override fun start(primaryStage: Stage) {
-        val Player = Auto(250, 360)
+        val Player = Auto(275, 720-100)
 
         val marco = Rectangle(0.0, 0.0, sceneWidth, sceneHeight).apply {
             fill = null
@@ -40,15 +40,21 @@ class Main : Application() {
 
         object : AnimationTimer() {
             private var lastUpdate = 0L
+
             override fun handle(now: Long) {
-                if (lastUpdate > 60) {
+                if (lastUpdate == 0L) {
+                    lastUpdate = now
+                }
+                val timeCreate = (now - lastUpdate) / 1_000_000_000.0
+
+                if (timeCreate > 1) {
                     walls.forEach {
                         it.update();
                         if (it.outOfSight()) pane.children.remove(it.getWallNode())
                     }
-                    lastUpdate = 0
+                    lastUpdate = now
                 }
-                lastUpdate++
+
             }
         }.start()
 
@@ -66,12 +72,15 @@ class Main : Application() {
         pane.requestFocus()
     }
     private fun createWall() {
-        val wall = Wall()
-        walls.add(wall)
-        pane.children.add(wall.getWallNode())
+        val wallLeft = Wall(0.0,-Wall.size)
+        val wallRight = Wall( sceneWidth - Wall.size , -Wall.size)
+        walls.add(wallLeft)
+        walls.add(wallRight)
+        pane.children.add(wallLeft.getWallNode())
+        pane.children.add(wallRight.getWallNode())
     }
     companion object {
-        const val sceneWidth = 512.0
+        const val sceneWidth = 550.0
         const val sceneHeight = 720.0
     }
 }
