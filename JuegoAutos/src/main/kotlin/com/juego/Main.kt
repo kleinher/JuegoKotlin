@@ -3,6 +3,8 @@ package com.juego
 import com.juego.classes.Auto
 import com.juego.classes.Wall
 import javafx.animation.AnimationTimer
+import javafx.animation.KeyFrame
+import javafx.animation.Timeline
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.input.KeyCode
@@ -11,14 +13,15 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.stage.Stage
+import javafx.util.Duration
 
 class Main : Application() {
+    val pane = Pane()
+    val walls = ArrayList<Wall>()
+
     override fun start(primaryStage: Stage) {
-        val pane = Pane()
         val Player = Auto(250, 360)
-        val sceneWidth = 512.0
-        val sceneHeight = 720.0
-        val wall = Wall()
+
         val marco = Rectangle(0.0, 0.0, sceneWidth, sceneHeight).apply {
             fill = null
             stroke = Color.BLACK
@@ -37,17 +40,24 @@ class Main : Application() {
 
         object : AnimationTimer() {
             private var lastUpdate = 0L
-
             override fun handle(now: Long) {
-                if (lastUpdate > 0) {
-                    val deltaTime = (now - lastUpdate) / 1_000_000_000.0 // Convertir a segundos
-                    wall.update(deltaTime)
+                if (lastUpdate > 60) {
+                    walls.forEach {
+                        it.update();
+                        if (it.outOfSight()) pane.children.remove(it.getWallNode())
+                    }
+                    lastUpdate = 0
                 }
-                lastUpdate = now
+                lastUpdate++
             }
         }.start()
 
-        pane.children.add(wall.getWallNode())
+        val timeline = Timeline(
+            KeyFrame(Duration.seconds(2.0), { createWall() })
+        )
+        timeline.cycleCount = Timeline.INDEFINITE
+        timeline.play()
+
         pane.children.add(Player.getCarNode())
         pane.children.add(marco)
         primaryStage.scene = scene
@@ -55,7 +65,15 @@ class Main : Application() {
         primaryStage.show()
         pane.requestFocus()
     }
-
+    private fun createWall() {
+        val wall = Wall()
+        walls.add(wall)
+        pane.children.add(wall.getWallNode())
+    }
+    companion object {
+        const val sceneWidth = 512.0
+        const val sceneHeight = 720.0
+    }
 }
 
 fun main() {
