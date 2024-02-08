@@ -4,9 +4,8 @@ import com.juego.Main
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
-class Wall ( positionX: Double, positionY: Double) {
-
-    private val speed = 50
+class Wall (var positionX: Double, private var positionY: Double) {
+    private val speed = 10
     private val wall = Rectangle(positionX, positionY, size, size).apply {
         fill = null
         stroke = Color.BLACK
@@ -14,6 +13,10 @@ class Wall ( positionX: Double, positionY: Double) {
     }
     fun update() {
         wall.translateY += speed
+        if((wall.translateY + wall.y ) > Main.sceneHeight) {
+            wall.y = -size*2
+            wall.translateY = 0.0
+        }
     }
     fun outOfSight() = wall.translateY > Main.sceneHeight
     fun getWallNode() = wall

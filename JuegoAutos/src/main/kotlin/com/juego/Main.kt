@@ -18,9 +18,10 @@ import javafx.util.Duration
 class Main : Application() {
     val pane = Pane()
     val walls = ArrayList<Wall>()
-
+    var gameSpeed = 1.0
     override fun start(primaryStage: Stage) {
         val Player = Auto(275, 720-100)
+        createWall()
 
         val marco = Rectangle(0.0, 0.0, sceneWidth, sceneHeight).apply {
             fill = null
@@ -34,6 +35,7 @@ class Main : Application() {
                 KeyCode.D -> Player.moveRight(sceneWidth)
                 KeyCode.W -> Player.moveUp()
                 KeyCode.S -> Player.moveDown(sceneHeight)
+                KeyCode.X -> aumentaSpeed()
                 else -> {}
             }
         }
@@ -45,24 +47,17 @@ class Main : Application() {
                 if (lastUpdate == 0L) {
                     lastUpdate = now
                 }
-                val timeCreate = (now - lastUpdate) / 1_000_000_000.0
-
-                if (timeCreate > 1) {
+                val timeCreate = (now - lastUpdate) / 1_000_000.0
+                if (timeCreate > (500.0 / gameSpeed)) {
                     walls.forEach {
                         it.update();
-                        if (it.outOfSight()) pane.children.remove(it.getWallNode())
                     }
                     lastUpdate = now
                 }
-
             }
         }.start()
 
-        val timeline = Timeline(
-            KeyFrame(Duration.seconds(2.0), { createWall() })
-        )
-        timeline.cycleCount = Timeline.INDEFINITE
-        timeline.play()
+
 
         pane.children.add(Player.getCarNode())
         pane.children.add(marco)
@@ -72,16 +67,25 @@ class Main : Application() {
         pane.requestFocus()
     }
     private fun createWall() {
-        val wallLeft = Wall(0.0,-Wall.size)
-        val wallRight = Wall( sceneWidth - Wall.size , -Wall.size)
-        walls.add(wallLeft)
-        walls.add(wallRight)
-        pane.children.add(wallLeft.getWallNode())
-        pane.children.add(wallRight.getWallNode())
+        for(i in 0..8){
+            val aux = Wall(0.0, i*100.0-100.0)
+            walls.add(aux)
+            pane.children.add(aux.getWallNode())
+        }
+        for(i in 0..8){
+            val aux = Wall(500.0, i*100.0-100.0)
+            walls.add(aux)
+            pane.children.add(aux.getWallNode())
+        }
     }
+    private fun aumentaSpeed(){
+        gameSpeed += 4.0
+
+    }
+
     companion object {
         const val sceneWidth = 550.0
-        const val sceneHeight = 720.0
+        const val sceneHeight = 800.0
     }
 }
 
