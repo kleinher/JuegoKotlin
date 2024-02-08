@@ -2,46 +2,68 @@ package com.juego.classes
 
 import javafx.scene.Group
 import javafx.scene.paint.Color
+import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 
-class Auto(private val positionX: Int, private val positionY: Int) {
+class Auto(positionX: Int, positionY: Int) {
     private val group = Group()
     private val rectangleDimension = 50.0
     private val innerRectangleDimension = 40.0
     private val offset = 5.0
+    private val carWidth = rectangleDimension*3
+    private val carHeight = rectangleDimension*4
+    private val speed = 50
     init {
-        val rects = arrayOf(
-            Rectangle(100.0, 50.0, rectangleDimension, rectangleDimension),  // Centro superior
-            Rectangle(50.0, 100.0, rectangleDimension, rectangleDimension),  // Izquierda media
-            Rectangle(100.0, 100.0, rectangleDimension, rectangleDimension), // Centro media
-            Rectangle(150.0, 100.0, rectangleDimension, rectangleDimension), // Derecha media
-            Rectangle(100.0, 150.0, rectangleDimension, rectangleDimension), // Centro inferior
-            Rectangle(50.0, 200.0, rectangleDimension, rectangleDimension),  // Izquierda inferior
-            Rectangle(150.0, 200.0, rectangleDimension, rectangleDimension)  // Derecha inferior
-        )
-        val innerRects = arrayOf(
-            Rectangle(100.0, 50.0, innerRectangleDimension, innerRectangleDimension),  // Centro superior
-            Rectangle(50.0, 100.0, innerRectangleDimension, innerRectangleDimension),  // Izquierda media
-            Rectangle(100.0, 100.0, innerRectangleDimension, innerRectangleDimension), // Centro media
-            Rectangle(150.0, 100.0, innerRectangleDimension, innerRectangleDimension), // Derecha media
-            Rectangle(100.0, 150.0, innerRectangleDimension, innerRectangleDimension), // Centro inferior
-            Rectangle(50.0, 200.0, innerRectangleDimension, innerRectangleDimension),  // Izquierda inferior
-            Rectangle(150.0, 200.0, innerRectangleDimension, innerRectangleDimension)  // Derecha inferior
-        )
+        val inicio = Circle(0.0, 0.0, 10.0, Color.RED)
+        val rects = rectangles(rectangleDimension)
+        val innerRects = rectangles(innerRectangleDimension)
+
         innerRects.forEach { rect ->
             rect.fill = Color.BLACK
-            rect.x += positionX.toDouble() + offset
-            rect.y += positionY.toDouble() + offset
             group.children.add(rect)
+            rect.x += offset
+            rect.y += offset
         }
 
         rects.forEach { rect ->
             rect.fill = null
             rect.stroke = Color.BLACK     // Color del borde
             rect.strokeWidth = 2.0
-            rect.x += positionX.toDouble()
-            rect.y += positionY.toDouble()
             group.children.add(rect)
+        }
+        group.children.add(inicio)
+        group.layoutX += positionX.toDouble()
+        group.layoutY += positionY.toDouble()
+    }
+
+    private fun rectangles(dimensions: Double) = arrayOf(
+        Rectangle(-25.0, -100.0, dimensions, dimensions),  // Centro superior
+        Rectangle(-75.0, -50.0, dimensions, dimensions),  // Izquierda media
+        Rectangle(-25.0, -50.0, dimensions, dimensions), // Centro media
+        Rectangle(25.0, -50.0, dimensions, dimensions), // Derecha media
+        Rectangle(-25.0, 0.0, dimensions, dimensions), // Centro inferior
+        Rectangle(-75.0, 50.0, dimensions, dimensions),  // Izquierda inferior
+        Rectangle(25.0, 50.0, dimensions, dimensions)  // Derecha inferior
+    )
+
+    fun moveLeft() {
+        if (group.layoutX - carWidth > carWidth/2) {
+            group.layoutX -= carWidth
+        }
+    }
+    fun moveRight(maxWidth: Double) {
+        if (group.layoutX + carWidth< maxWidth - carWidth/2) {
+            group.layoutX += carWidth
+        }
+    }
+    fun moveUp() {
+        if (group.layoutY - speed > carHeight/2) {
+            group.layoutY -= speed
+        }
+    }
+    fun moveDown(maxHeight: Double) {
+        if (group.layoutY + speed< maxHeight - carHeight/2) {
+            group.layoutY += speed
         }
     }
     fun getCarNode(): Group {
